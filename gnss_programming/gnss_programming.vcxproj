@@ -191,6 +191,8 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="gnss_programming.h" />
     <ClInclude Include="gnss_programmingDlg.h" />
+    <ClInclude Include="navigation_manager.h" />
+    <ClInclude Include="obeservation_manager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="spacetime_transform.h" />
@@ -199,6 +201,8 @@
   <ItemGroup>
     <ClCompile Include="gnss_programming.cpp" />
     <ClCompile Include="gnss_programmingDlg.cpp" />
+    <ClCompile Include="navigation_manager.cpp" />
+    <ClCompile Include="observation_manager.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -211,6 +215,8 @@
     <ResourceCompile Include="gnssprogramming.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\bake1290.24o" />
+    <None Include="..\brdc1290.24n" />
     <None Include="res\gnssprogramming.rc2" />
   </ItemGroup>
   <ItemGroup>

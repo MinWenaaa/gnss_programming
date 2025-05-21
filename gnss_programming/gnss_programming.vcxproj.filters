@@ -39,6 +39,12 @@
     <ClInclude Include="spacetime_transform.h">
       <Filter>app</Filter>
     </ClInclude>
+    <ClInclude Include="navigation_manager.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="obeservation_manager.h">
+      <Filter>app</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gnss_programming.cpp">
@@ -53,6 +59,12 @@
     <ClCompile Include="spacetime_transform.cpp">
       <Filter>app</Filter>
     </ClCompile>
+    <ClCompile Include="navigation_manager.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="observation_manager.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="gnssprogramming.rc">
@@ -61,6 +73,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\gnssprogramming.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\bake1290.24o">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\brdc1290.24n">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

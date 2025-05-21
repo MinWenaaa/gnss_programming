@@ -49,4 +49,6 @@ public:
 	afx_msg void OnCbnSelchangecombospaceorigin();
 	afx_msg void OnCbnSelchangecombospacetarget();
 	afx_msg void OnBnClickedconfirm();
+	afx_msg void OnBnClickedNfilebutton();
+	afx_msg void OnBnClickedOfilebutton();
 };
