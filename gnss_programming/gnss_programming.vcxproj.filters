@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="app">
+      <UniqueIdentifier>{0639463b-d4e6-4ecb-89bd-90ca5a46177c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnss_programming.h">
@@ -33,6 +36,9 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="spacetime_transform.h">
+      <Filter>app</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gnss_programming.cpp">
@@ -43,6 +49,9 @@
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="spacetime_transform.cpp">
+      <Filter>app</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

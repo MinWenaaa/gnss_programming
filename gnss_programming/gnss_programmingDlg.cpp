@@ -7,6 +7,7 @@
 #include "gnss_programming.h"
 #include "gnss_programmingDlg.h"
 #include "afxdialogex.h"
+#include "spacetime_transform.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -59,12 +60,26 @@ CgnssprogrammingDlg::CgnssprogrammingDlg(CWnd* pParent /*=nullptr*/)
 void CgnssprogrammingDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_COMBO_origin, combo_origin);
+	DDX_Control(pDX, IDC_timeOutput, time_input);
+	DDX_Control(pDX, IDC_timeInput, time_output);
+	DDX_Control(pDX, IDC_COMBO2_target, combo_target);
+	DDX_Control(pDX, IDC_EDIT2, space_origin_input);
+	DDX_Control(pDX, IDC_EDIT1, space_output);
+	DDX_Control(pDX, IDC_combo_space_target, space_tyep_target);
+	DDX_Control(pDX, IDC_combo_space_origin, space_type_origin);
 }
 
 BEGIN_MESSAGE_MAP(CgnssprogrammingDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(timeConfirm, &CgnssprogrammingDlg::OnBnClickedtimeconfirm)
+	ON_CBN_SELCHANGE(IDC_COMBO_origin, &CgnssprogrammingDlg::OnCbnSelchangeComboorigin)
+	ON_CBN_SELCHANGE(IDC_COMBO2_target, &CgnssprogrammingDlg::OnCbnSelchangeCombo2target)
+	ON_CBN_SELCHANGE(IDC_combo_space_origin, &CgnssprogrammingDlg::OnCbnSelchangecombospaceorigin)
+	ON_CBN_SELCHANGE(IDC_combo_space_target, &CgnssprogrammingDlg::OnCbnSelchangecombospacetarget)
+	ON_BN_CLICKED(space_confirm, &CgnssprogrammingDlg::OnBnClickedconfirm)
 END_MESSAGE_MAP()
 
 
@@ -153,3 +168,70 @@ HCURSOR CgnssprogrammingDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+
+
+
+
+
+void CgnssprogrammingDlg::OnBnClickedtimeconfirm() {
+	// TODO: 在此添加控件通知处理程序代码
+	// 解析输入
+	CString strInput;
+	time_input.GetWindowText(strInput);
+	std::string inputStr = CT2A(strInput.GetString());
+	timeTransformer::instance().parserInput(inputStr);
+
+	// 时间转换
+	timeTransformer::instance().run();
+
+	// 输出
+	CString strOutput = CString(timeTransformer::instance().getTarget().c_str());
+	time_output.SetWindowText(strOutput);
+}
+
+
+void CgnssprogrammingDlg::OnCbnSelchangeComboorigin()
+{
+	// TODO
+	int origin = combo_origin.GetCurSel();
+	timeTransformer::instance().setOrigin((timeTransformer::TimeType)origin);
+
+}
+
+void CgnssprogrammingDlg::OnCbnSelchangeCombo2target()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int origin = combo_target.GetCurSel();
+	timeTransformer::instance().setTarget((timeTransformer::TimeType)origin);
+}
+
+void CgnssprogrammingDlg::OnCbnSelchangecombospaceorigin()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int origin = space_type_origin.GetCurSel();
+	spaceTransformer::instance().setOrigin((spaceTransformer::spaceType)origin);
+}
+
+void CgnssprogrammingDlg::OnCbnSelchangecombospacetarget()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int target = space_tyep_target.GetCurSel();
+	spaceTransformer::instance().setTarget((spaceTransformer::spaceType)target);
+}
+
+void CgnssprogrammingDlg::OnBnClickedconfirm()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	// 解析输入
+	CString strInput;
+	space_origin_input.GetWindowText(strInput);
+	std::string inputStr = CT2A(strInput.GetString());
+	spaceTransformer::instance().parserInput(inputStr);
+	// 空间转换
+	spaceTransformer::instance().run();
+	// 输出
+	CString strOutput = CString(spaceTransformer::instance().getTarget().c_str());
+	space_output.SetWindowText(strOutput);
+}
