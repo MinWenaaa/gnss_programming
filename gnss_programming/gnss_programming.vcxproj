@@ -192,7 +192,7 @@
     <ClInclude Include="gnss_programming.h" />
     <ClInclude Include="gnss_programmingDlg.h" />
     <ClInclude Include="navigation_manager.h" />
-    <ClInclude Include="obeservation_manager.h" />
+    <ClInclude Include="observation_manager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="spacetime_transform.h" />

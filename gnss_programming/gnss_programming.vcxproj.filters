@@ -42,7 +42,7 @@
     <ClInclude Include="navigation_manager.h">
       <Filter>app</Filter>
     </ClInclude>
-    <ClInclude Include="obeservation_manager.h">
+    <ClInclude Include="observation_manager.h">
       <Filter>app</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,6 +9,7 @@
 #include "gnss_programmingDlg.h"
 #include "afxdialogex.h"
 #include "navigation_manager.h"
+#include "observation_manager.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -161,10 +162,10 @@ HCURSOR CgnssprogrammingDlg::OnQueryDragIcon()
 
 void CgnssprogrammingDlg::OnBnClickedNfilebutton()
 {
-	CFileDialog dlg(TRUE); // TRUE 表示“打开文件”，FALSE 表示“保存文件”
+	CFileDialog dlg(TRUE);
 	if (dlg.DoModal() == IDOK) {
 		CString filePath = dlg.GetPathName();
-		CT2A psz(filePath.GetString()); // CT2A 需要包含 <atlconv.h>
+		CT2A psz(filePath.GetString()); 
 		const char* p = psz;
 		navigationManager::instance().readFile(p);
 	}
@@ -172,5 +173,11 @@ void CgnssprogrammingDlg::OnBnClickedNfilebutton()
 
 void CgnssprogrammingDlg::OnBnClickedOfilebutton()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	CFileDialog dlg(TRUE); 
+	if (dlg.DoModal() == IDOK) {
+		CString filePath = dlg.GetPathName();
+		CT2A psz(filePath.GetString()); 
+		const char* p = psz;
+		ObservationManager::instance().readFile(p);
+	}
 }
