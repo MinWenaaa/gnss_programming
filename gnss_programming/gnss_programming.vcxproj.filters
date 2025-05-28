@@ -45,6 +45,9 @@
     <ClInclude Include="observation_manager.h">
       <Filter>app</Filter>
     </ClInclude>
+    <ClInclude Include="solution.h">
+      <Filter>app</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gnss_programming.cpp">
@@ -63,6 +66,9 @@
       <Filter>app</Filter>
     </ClCompile>
     <ClCompile Include="observation_manager.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="solution.cpp">
       <Filter>app</Filter>
     </ClCompile>
   </ItemGroup>

@@ -46,7 +46,7 @@ std::string timeTransformer::getTarget() {
     const auto& inst = timeTransformer::instance();
     std::ostringstream oss;
     switch (inst.target) {
-    case timeTransformer::UTM:
+    case UTM:
         // 格式: YYYY-MM-DD HH:MM:SS
         oss << std::setfill('0')
             << std::setw(4) << inst.utm_year << '-'
@@ -56,15 +56,15 @@ std::string timeTransformer::getTarget() {
             << std::setw(2) << inst.utm_min << ':'
             << std::setw(2) << inst.utm_sec;
         break;
-    case timeTransformer::JD:
+    case JD:
         // 格式: JD=xxxx.xxxxx
         oss << "JD=" << std::fixed << std::setprecision(5) << inst.jd;
         break;
-    case timeTransformer::GPS:
+    case GPS:
         // 格式: GPS Week: xxxx, Seconds: xxxxx
         oss << "GPS Week: " << inst.gps_week << ", Seconds: " << inst.gps_second;
         break;
-    case timeTransformer::DOY:
+    case DOY:
         // 格式: YYYY-DOY
         oss << std::setfill('0')
             << std::setw(4) << inst.doy_year << '-'
@@ -119,7 +119,7 @@ double timeTransformer::UTM2JD() {
     // 查询跳秒
     int leap = getLeapSeconds(utm_year, utm_mon, utm_day);
 
-    jd = utc_jd + leap / 86400.0;
+    jd = utc_jd;
     return jd;
 }
 

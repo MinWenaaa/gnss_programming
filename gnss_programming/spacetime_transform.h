@@ -1,10 +1,10 @@
 #pragma once
 #include <string>
 
+enum TimeType { DOY, GPS, JD, UTM };
+
 class timeTransformer {
 public:
-	enum TimeType { DOY, GPS, JD, UTM  };
-
 	static timeTransformer& instance() {
 		static timeTransformer instance;
 		return instance;
@@ -22,6 +22,12 @@ public:
 	std::string getTarget();
 	void parserInput(std::string);
 
+	double jd = 0;
+	int doy_year = 0, doy_day = 0, gps_week = 0, gps_second = 0;
+	int utm_year = 0, utm_mon = 0, utm_day = 0, utm_hour = 0, utm_min = 0;
+	double utm_sec = 0;
+
+
 private:
 	timeTransformer() = default;
 	// ½ûÖ¹¿½±´ºÍ¸³Öµ
@@ -29,10 +35,6 @@ private:
 	timeTransformer& operator=(const timeTransformer&) = delete;
 
 	TimeType origin = UTM, target = UTM;
-
-	double jd = 0;
-	int doy_year = 0, doy_day = 0, gps_week = 0, gps_second = 0;
-	int utm_year = 0, utm_mon = 0, utm_day = 0, utm_hour = 0, utm_min = 0, utm_sec = 0;
 
 	double UTM2JD();
 	double GPS2JD();

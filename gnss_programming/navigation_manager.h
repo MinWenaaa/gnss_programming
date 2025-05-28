@@ -4,6 +4,11 @@
 #include <vector>
 
 const size_t data_of_satellite = 26;
+// 用于索引数据
+enum note {
+	Eph, Crs, Dn, M0, Cuc, Ec, Cus, sqrtA, ToeT, Cic, Omega, Cis, i0, Crc, omega, OmegaDot,
+	IDOT, CodesL2, Week, L2P, Accuracy, Health, TGD, IODC, TransTime, FitInterval
+};
 
 class satelliteData {
 public:

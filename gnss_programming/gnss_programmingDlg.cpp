@@ -10,6 +10,7 @@
 #include "afxdialogex.h"
 #include "navigation_manager.h"
 #include "observation_manager.h"
+#include "solution.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -180,4 +181,5 @@ void CgnssprogrammingDlg::OnBnClickedOfilebutton()
 		const char* p = psz;
 		ObservationManager::instance().readFile(p);
 	}
+	solution::instance().cal_all();
 }
