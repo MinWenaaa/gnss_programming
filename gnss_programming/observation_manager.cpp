@@ -21,7 +21,7 @@ bool ObservationManager::readFile(const char* file_path) {
 	std::getline(obsFile, line);
 	std::getline(obsFile, line);
 
-	obsFile >> approch_x >> approch_y >> approach_z;
+	obsFile >> approch_x >> approch_y >> approch_z;
 	std::getline(obsFile, line);
 	std::getline(obsFile, line);
 	std::getline(obsFile, line);

@@ -7,6 +7,7 @@
 const double GM = 3.986005e14; // 地球引力常数
 const double TOLERANCE = 1e-6; // 误差容限
 const double omega_e = 7.2921151467e-5; // 地球自转角速度 (rad/s)
+const double c = 299792458.0; // 光速 (m/s)
 
 struct position {
 	double coord[3];
@@ -23,7 +24,7 @@ double solveKepler(double M, double e) {
 	return E;
 }
 
-void solution::get_position(int prn, int hour, int min, double sec, double* result) {
+void solution::get_position(int prn, int hour, int min, double sec, double dSec, double* result) {
 	navigationManager& navManager = navigationManager::instance();
 	timeTransformer& timeManager = timeTransformer::instance();
 
@@ -51,7 +52,7 @@ void solution::get_position(int prn, int hour, int min, double sec, double* resu
 	}
 
 	// step 1
-	double n = sqrt(GM / (temp->orbits[sqrtA] * temp->orbits[sqrtA] * temp->orbits[sqrtA])) + temp->orbits[Dn];
+	double n = sqrt(GM) / (temp->orbits[sqrtA] * temp->orbits[sqrtA] * temp->orbits[sqrtA]) + temp->orbits[Dn];
 
 	// step2
 	timeManager.setOrigin(UTM); timeManager.setTarget(GPS);
@@ -59,7 +60,7 @@ void solution::get_position(int prn, int hour, int min, double sec, double* resu
 	timeManager.utm_day = temp->day; timeManager.utm_hour = temp->hour;
 	timeManager.utm_min = temp->minu; timeManager.utm_sec = temp->sec;
 	timeManager.run();
-	double t = timeManager.gps_second;
+	double t = timeManager.gps_second - dSec;
 	//double t = temp->orbits[ToeT];
 	double M = temp->orbits[M0] + n * (t - temp->orbits[ToeT]);
 
@@ -108,7 +109,13 @@ void solution::cal_all() {
 		for (const auto& obs : temp->obses) {
 			if (obs->satName[0] != 'G') continue;
 			int prn = std::atoi(obs->satName + 1); 
-			get_position(prn, temp->h, temp->min, temp->sec, positions[count].coord);
+			double dSec = 0;
+			get_position(prn, temp->h, temp->min, temp->sec, dSec, positions[count].coord);
+			double distance = std::sqrt(std::pow(obsManager.approch_x - positions[count].coord[0], 2) +
+				std::pow(obsManager.approch_y - positions[count].coord[1], 2) +
+				std::pow(obsManager.approch_z - positions[count].coord[2], 2));
+			dSec += distance/c;
+			get_position(prn, temp->h, temp->min, temp->sec, dSec, positions[count].coord);
 			count++;
 		}
 		

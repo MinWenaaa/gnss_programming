@@ -29,7 +29,7 @@ public:
 	bool readFile(const char* file_path);
 
 	std::string version;
-	double approch_x, approch_y, approach_z, ant_dh, ant_de, ant_dn;
+	double approch_x, approch_y, approch_z, ant_dh, ant_de, ant_dn;
 	int sec;
 	std::vector<std::string> satNames;
 	std::vector<Epoch*> epoches;

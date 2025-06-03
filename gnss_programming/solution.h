@@ -20,6 +20,6 @@ private:
 	solution& operator=(const solution&) = delete;
 	std::vector<satPosition> sat_positions;
 
-	void get_position(int prn, int hour, int min, double sec, double* result);
+	void get_position(int prn, int hour, int min, double sec, double dSec, double* result);
 	
 };
