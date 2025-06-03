@@ -79,7 +79,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Program\MicrosoftVisualStudio\2022\Professional\VC\Tools\MSVC\14.16.27023\atlmfc\include;$(IncludePath)</IncludePath>
+    <IncludePath>D:\Program\MicrosoftVisualStudio\2022\Professional\VC\Tools\MSVC\14.16.27023\atlmfc\include;D:\package\eigen-3.4.0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

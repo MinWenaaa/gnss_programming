@@ -101,7 +101,7 @@ bool ObservationManager::readFile(const char* file_path) {
 			for (; k < 5; k++) {
 				obsFile.read(buf, 16); 
 				val = std::strtod(buf, &endptr);
-				temp->obses[j]->obs[k] = (endptr == buf) ? -1 : val;
+				temp->obses[j]->obs[k] = (endptr == buf) ? 0 : val;
 			}
 			for (; k < 8; k++) {
 				obsFile >> temp->obses[j]->obs[k];

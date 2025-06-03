@@ -88,35 +88,6 @@ static constexpr double a = 6378137.0;                // ≥§∞Î÷·
 static constexpr double f = 1.0 / 298.257223563;      // ±‚¬ 
 static constexpr double e2 = 2 * f - f * f;
 
-class spaceTransformer {
-public:
-	enum spaceType { BLH, ENU, XYZ };
-	static spaceTransformer& instance() {
-		static spaceTransformer instance;
-		return instance;
-	}
-	void setOrigin(spaceType o) {
-		origin = o;
-	}
-	void setTarget(spaceType t) {
-		target = t;
-	}
-	void run();
-	void parserInput(const std::string& input);
-	std::string getTarget();
-
-
-private:
-	spaceTransformer() = default;
-	// Ω˚÷πøΩ±¥∫Õ∏≥÷µ
-	spaceTransformer(const spaceTransformer&) = delete;
-	spaceTransformer& operator=(const spaceTransformer&) = delete;
-
-	double x, y, z, b, l, h, e, n, u;
-	spaceType origin = BLH, target = BLH;
-
-	void xyz2blh();
-	void xyz2enu();
-	void blh2xyz();
-	void enu2xyz();
+namespace spaceTransformer {
+	void xyz2blh(double x, double y, double z, double& b, double& l, double& h);
 };

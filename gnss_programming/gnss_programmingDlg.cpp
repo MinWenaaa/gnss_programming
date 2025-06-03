@@ -16,7 +16,6 @@
 #define new DEBUG_NEW
 #endif
 
-
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -181,5 +180,5 @@ void CgnssprogrammingDlg::OnBnClickedOfilebutton()
 		const char* p = psz;
 		ObservationManager::instance().readFile(p);
 	}
-	solution::instance().cal_all();
+	//solution::instance().cal_all();
 }

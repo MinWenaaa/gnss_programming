@@ -272,22 +272,7 @@ int getLeapSeconds(int year, int month, int day) {
     return leap;
 }
 
-void spaceTransformer::run() {
-	if (target == BLH) {
-		xyz2blh();
-	}
-	else if (target == ENU) {
-		xyz2enu();
-	}
-    else if (origin == ENU) {
-        enu2xyz();
-    }
-    else if (origin == BLH) {
-        blh2xyz();
-    }
-}
-
-void spaceTransformer::xyz2blh() {
+void xyz2blh(double x, double y, double z, double& b, double& l, double& h) {
     double r = sqrt(x * x + y * y);
     double B = atan2(z, r * (1 - e2)); // 初始纬度
     double N, H, B0;
@@ -298,98 +283,7 @@ void spaceTransformer::xyz2blh() {
         B = atan2(z, r * (1 - e2 * N / (N + H)));
     } while (fabs(B - B0) > 1e-11);
 
-    b = B* 180.0 /M_PI; // 弧度
+    b = B * 180.0 / M_PI; // 弧度
     l = atan2(y, x) * 180.0 / M_PI; // 弧度
     h = H;
-}
-
-const double true_x = 2393383.1319, true_y = 5393860.9241, true_z = 2412592.1599;
-
-void spaceTransformer::xyz2enu() {
-    double ref_b, ref_l, ref_h;
-    {
-        double r = sqrt(true_x * true_x + true_y * true_y);
-        double B = atan2(true_z, r * (1 - e2));
-        double N, H, B0;
-        do {
-            B0 = B;
-            N = a / sqrt(1 - e2 * sin(B0) * sin(B0));
-            H = r / cos(B0) - N;
-            B = atan2(true_z, r * (1 - e2 * N / (N + H)));
-        } while (fabs(B - B0) > 1e-11);
-        ref_b = B;
-        ref_l = atan2(true_y, true_x);
-        ref_h = H;
-    }
-
-    double dx = x - true_x;
-    double dy = y - true_y;
-    double dz = z - true_z;
-
-    e = -sin(ref_l) * dx + cos(ref_l) * dy;
-    n = -sin(ref_b) * cos(ref_l) * dx - sin(ref_b) * sin(ref_l) * dy + cos(ref_b) * dz;
-    u = cos(ref_b) * cos(ref_l) * dx + cos(ref_b) * sin(ref_l) * dy + sin(ref_b) * dz;
-}
-
-void spaceTransformer::parserInput(const std::string& input) {
-    std::istringstream iss(input);
-    char delim;
-    iss >> x >> delim >> y >> delim >> z;
-}
-
-std::string spaceTransformer::getTarget() {
-    std::ostringstream oss;
-    if (target == XYZ) {
-        oss << x << ';' << y << ';' << z;
-    }
-    else if (target == BLH) {
-        oss << b << ';' << l << ';' << h;
-    }
-    else if (target == ENU) {
-        oss << e << ';' << n << ';' << u;
-    }
-    else {
-        oss << "Unknown target type";
-    }
-    return oss.str();
-}
-
-void spaceTransformer::blh2xyz() {
-    // b, l 为角度，需转为弧度
-    double B = b * M_PI / 180.0;
-    double L = l * M_PI / 180.0;
-    double N = a / sqrt(1 - e2 * sin(B) * sin(B));
-    x = (N + h) * cos(B) * cos(L);
-    y = (N + h) * cos(B) * sin(L);
-    z = (N * (1 - e2) + h) * sin(B);
-}
-
-// ENU -> XYZ（需参考点true_x, true_y, true_z）
-void spaceTransformer::enu2xyz() {
-    // 1. 参考点xyz转blh
-    double ref_b, ref_l, ref_h;
-    {
-        double r = sqrt(true_x * true_x + true_y * true_y);
-        double B = atan2(true_z, r * (1 - e2));
-        double N, H, B0;
-        do {
-            B0 = B;
-            N = a / sqrt(1 - e2 * sin(B0) * sin(B0));
-            H = r / cos(B0) - N;
-            B = atan2(true_z, r * (1 - e2 * N / (N + H)));
-        } while (fabs(B - B0) > 1e-11);
-        ref_b = B;
-        ref_l = atan2(true_y, true_x);
-        ref_h = H;
-    }
-
-    // 2. ENU到差分XYZ
-    double dx = -sin(ref_l) * e - sin(ref_b) * cos(ref_l) * n + cos(ref_b) * cos(ref_l) * u;
-    double dy = cos(ref_l) * e - sin(ref_b) * sin(ref_l) * n + cos(ref_b) * sin(ref_l) * u;
-    double dz = cos(ref_b) * n + sin(ref_b) * u;
-
-    // 3. 得到目标XYZ
-    x = true_x + dx;
-    y = true_y + dy;
-    z = true_z + dz;
 }
