@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-enum Type { C1, C2, L1, L2, P1, P2, S1, S2};
+enum Band { C1, C2, L1, L2, P1, P2, S1, S2};
 
 struct singleObs {
 	char satName[3];

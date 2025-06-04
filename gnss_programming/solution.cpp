@@ -1,5 +1,6 @@
 #include "pch.h" 
 #include <cmath>
+#include <fstream>
 
 #include <Eigen/Dense>
 
@@ -63,9 +64,9 @@ void solution::get_position(int prn, Epoch* epoch, double dSec, double* result) 
 
 	// step2
 	timeManager.setOrigin(UTM); timeManager.setTarget(GPS);
-	timeManager.utm_year = temp->year + 2000; timeManager.utm_mon = temp->mon;
-	timeManager.utm_day = temp->day; timeManager.utm_hour = temp->hour;
-	timeManager.utm_min = temp->minu; timeManager.utm_sec = temp->sec;
+	timeManager.utm_year = epoch->y + 2000; timeManager.utm_mon = epoch->m;
+	timeManager.utm_day = epoch->d; timeManager.utm_hour = epoch->h;
+	timeManager.utm_min = epoch->min; timeManager.utm_sec = epoch->sec;
 	timeManager.run();
 	double t = timeManager.gps_second - dSec;
 	//double t = temp->orbits[ToeT];
@@ -153,19 +154,9 @@ double solution::klobuchar(double x, double y, double z, double UT) {
 	return Tg * (1 + 2 * std::pow((96 - el / PI * 180) / 90, 2));
 }
 
-double solution::saastamoinen(double x, double y, double z, double P = 1013.25, double T = 291.15, double e = 20.0) {
+double solution::saastamoinen(double el, double P, double T, double e) {
 	ObservationManager& obsManager = ObservationManager::instance();
-	double dx = x - obsManager.approch_x, dy = y - obsManager.approch_y, dz = z - obsManager.approch_z;
 	double b, l, h;
-	spaceTransformer::xyz2blh(x, y, z, b, l, h);
-
-	double sin_lat = sin(b), cos_lat = cos(l);
-	double sin_lon = sin(l), cos_lon = cos(b);
-	double e = -sin_lon * dx + cos_lon * dy;
-	double n = -sin_lat * cos_lon * dx - sin_lat * sin_lon * dy + cos_lat * dz;
-	double u = cos_lat * cos_lon * dx + cos_lat * sin_lon * dy + sin_lat * dz;
-
-	double el = std::asin(u / sqrt(e * e + n * n + u * u));
 	spaceTransformer::xyz2blh(obsManager.approch_x, obsManager.approch_y, obsManager.approch_z, b, l, h);
 
 	// 标准大气压随高程修正
@@ -232,10 +223,6 @@ void solution::spp_gps(Epoch* epoch, double* result, Band type) {
 		B(i, 2) = -(satPositions(i, 2) - obsManager.approch_z) / rho_0;
 		B(i, 3) = 1;
 
-		L(i, 0) = epoch->obses[i]->obs[type] - rho_0 
-			- klobuchar(satPositions(i,0), satPositions(i, 1), satPositions(i,2), epoch->h+epoch->min/60.0)
-			- saastamoinen(satPositions(i, 0), satPositions(i, 1), satPositions(i, 2));
-
 		double dx = satPositions(i, 0) - obsManager.approch_x, 
 			dy = satPositions(i, 1) - obsManager.approch_y, 
 			dz = satPositions(i, 2) - obsManager.approch_z;
@@ -249,6 +236,11 @@ void solution::spp_gps(Epoch* epoch, double* result, Band type) {
 		double u = cos_lat * cos_lon * dx + cos_lat * sin_lon * dy + sin_lat * dz;
 
 		double el = std::asin(u / sqrt(e * e + n * n + u * u));
+
+		L(i, 0) = epoch->obses[i]->obs[type] - rho_0
+			- klobuchar(satPositions(i, 0), satPositions(i, 1), satPositions(i, 2), epoch->h + epoch->min / 60.0)
+			- saastamoinen(el);
+
 
 		P(i, i) = std::pow(std::sin(el), 2);
 	}
@@ -266,4 +258,40 @@ void solution::spp_gps(Epoch* epoch, double* result, Band type) {
 	result[2] = X(2, 0);
 	result[3] = X(3, 0); // 钟差
 
+}
+
+void solution::cal_all() {
+	std::fstream outFile(file_path, 'w');
+
+	outFile << "x, y, z\n";
+	ObservationManager& obsManager = ObservationManager::instance();
+	for (const auto& epoch : obsManager.epoches) {
+		double result[4] = { 0 };
+		spp_gps(epoch, result, C1); // 使用C1观测值进行单点定位
+		outFile << result[0] << "," << result[1] << ',' << result[2] << '\n';
+	}
+}
+
+void solution::cal_all_position() {
+	std::vector<position> positions;
+	positions.resize(300);
+	int count = 0;
+	ObservationManager& obsManager = ObservationManager::instance();
+	for (int i = 0; i < 10; i++) {
+		Epoch* temp = obsManager.epoches[i];
+
+		for (const auto& obs : temp->obses) {
+			if (obs->satName[0] != 'G') continue;
+			int prn = std::atoi(obs->satName + 1);
+			double dSec = 0;
+			get_position(prn, temp, dSec, positions[count].coord);
+			double distance = std::sqrt(std::pow(obsManager.approch_x - positions[count].coord[0], 2) +
+				std::pow(obsManager.approch_y - positions[count].coord[1], 2) +
+				std::pow(obsManager.approch_z - positions[count].coord[2], 2));
+			dSec += distance / c;
+			get_position(prn, temp, dSec, positions[count].coord);
+			count++;
+		}
+	}
+	return;
 }

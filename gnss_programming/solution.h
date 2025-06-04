@@ -8,11 +8,15 @@ struct satPosition {
 class solution {
 public:
 	static solution& instance() {
-		solution instance;
+		static solution instance;
 		return instance;
 	}
 
-	//void cal_all();
+	void cal_all();
+	void cal_all_position();
+	void set_file_path(std::string& s) {
+		file_path = s;
+	}
 
 private:
 	solution() = default;
@@ -23,7 +27,9 @@ private:
 	void get_position(int prn, Epoch* epoch, double dSec, double* result);
 	void sat_position(int prn, Epoch* epoch, double* result);
 	double klobuchar(double x, double y, double z, double UT);
-	double saastamoinen(double x, double y, double z, double P = 1013.25, double T = 291.15, double e = 20.0);
+	double saastamoinen(double el, double P = 1013.25, double T = 291.15, double e = 20.0);
 
 	void spp_gps(Epoch* epoch, double* result, Band type);
+
+	std::string file_path;
 };

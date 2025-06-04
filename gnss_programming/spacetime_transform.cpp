@@ -272,18 +272,20 @@ int getLeapSeconds(int year, int month, int day) {
     return leap;
 }
 
-void xyz2blh(double x, double y, double z, double& b, double& l, double& h) {
-    double r = sqrt(x * x + y * y);
-    double B = atan2(z, r * (1 - e2)); // 初始纬度
-    double N, H, B0;
-    do {
-        B0 = B;
-        N = a / sqrt(1 - e2 * sin(B0) * sin(B0));
-        H = r / cos(B0) - N;
-        B = atan2(z, r * (1 - e2 * N / (N + H)));
-    } while (fabs(B - B0) > 1e-11);
+namespace spaceTransformer {
+    void xyz2blh(double x, double y, double z, double& b, double& l, double& h) {
+        double r = sqrt(x * x + y * y);
+        double B = atan2(z, r * (1 - e2)); // 初始纬度
+        double N, H, B0;
+        do {
+            B0 = B;
+            N = a / sqrt(1 - e2 * sin(B0) * sin(B0));
+            H = r / cos(B0) - N;
+            B = atan2(z, r * (1 - e2 * N / (N + H)));
+        } while (fabs(B - B0) > 1e-11);
 
-    b = B * 180.0 / M_PI; // 弧度
-    l = atan2(y, x) * 180.0 / M_PI; // 弧度
-    h = H;
+        b = B * 180.0 / M_PI; // 弧度
+        l = atan2(y, x) * 180.0 / M_PI; // 弧度
+        h = H;
+    }
 }

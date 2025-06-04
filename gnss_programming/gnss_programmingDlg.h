@@ -34,11 +34,9 @@ protected:
 	DECLARE_MESSAGE_MAP();
 
 public:
-	afx_msg void OnBnClickedtimeconfirm();
-	afx_msg void OnCbnSelchangeComboorigin();
+
 	CComboBox combo_origin;
 
-	afx_msg void OnCbnSelchangeCombo2target();
 	CEdit time_input;
 	CEdit time_output;
 	CComboBox combo_target;
@@ -46,9 +44,8 @@ public:
 	CEdit space_output;
 	CComboBox space_tyep_target;
 	CComboBox space_type_origin;
-	afx_msg void OnCbnSelchangecombospaceorigin();
-	afx_msg void OnCbnSelchangecombospacetarget();
-	afx_msg void OnBnClickedconfirm();
 	afx_msg void OnBnClickedNfilebutton();
 	afx_msg void OnBnClickedOfilebutton();
+
+	afx_msg void OnBnClickedOutput();
 };

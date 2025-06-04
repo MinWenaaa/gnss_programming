@@ -2,6 +2,7 @@
 // gnss_programmingDlg.cpp: 实现文件
 //
 #include <atlconv.h>
+#include <string>
 
 #include "pch.h"
 #include "framework.h"
@@ -71,6 +72,7 @@ BEGIN_MESSAGE_MAP(CgnssprogrammingDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_N_fileButton, &CgnssprogrammingDlg::OnBnClickedNfilebutton)
 	ON_BN_CLICKED(IDC_O_fileButton, &CgnssprogrammingDlg::OnBnClickedOfilebutton)
+	ON_BN_CLICKED(IDC_OutPut, &CgnssprogrammingDlg::OnBnClickedOutput)
 END_MESSAGE_MAP()
 
 
@@ -181,4 +183,27 @@ void CgnssprogrammingDlg::OnBnClickedOfilebutton()
 		ObservationManager::instance().readFile(p);
 	}
 	//solution::instance().cal_all();
+}
+
+void CgnssprogrammingDlg::OnBnClickedOutput()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CFileDialog fileDlg(FALSE, _T("csv"), _T("output.csv"),
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("CSV Files (*.csv)|*.csv||"),
+		AfxGetMainWnd());
+
+	fileDlg.m_ofn.lpstrTitle = _T("选择输出文件位置");
+
+	if (fileDlg.DoModal() == IDOK){
+		CString filePath = fileDlg.GetPathName();
+		if (filePath.Right(4).CompareNoCase(_T(".csv")) != 0){
+			filePath += _T(".csv");
+		}	
+		std::string stdPath = CT2A(filePath);
+		solution& s = solution::instance();
+		s.cal_all_position();
+		s.set_file_path(stdPath);
+		s.cal_all();
+	}
 }
