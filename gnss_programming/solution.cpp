@@ -6,7 +6,6 @@
 
 #include "solution.h"
 #include "spacetime_transform.h"
-#include "navigation_manager.h"
 
 const double GM = 3.986005e14; // 地球引力常数
 const double TOLERANCE = 1e-6; // 误差容限
@@ -15,6 +14,7 @@ const double c = 299792458.0; // 光速 (m/s)
 const double PI = 3.14159265358979323846; // 圆周率
 const double phi = 79.93;
 const double lambda = 288.04;
+
 struct position {
 	double coord[3];
 };
@@ -30,14 +30,60 @@ double solveKepler(double M, double e) {
 	return E;
 }
 
-void solution::get_position(int prn, Epoch* epoch, double dSec, double* result) {
-	navigationManager& navManager = navigationManager::instance();
-	timeTransformer& timeManager = timeTransformer::instance();
+void solution::get_position(satelliteData* sat, Epoch* epoch, double dSec, double* result) {
+	
+	// step 1
+	double n = sqrt(GM) / (sat->orbits[sqrtA] * sat->orbits[sqrtA] * sat->orbits[sqrtA]) + sat->orbits[Dn];
 
+	// step2
+	GPS gpsTime; 
+	UTC utcTime(
+		epoch->y + 2000, epoch->m, epoch->d, epoch->h, epoch->min, epoch->sec);
+	utc2gps(&utcTime, &gpsTime);
+	double t = gpsTime.sec - dSec;
+	double M = sat->orbits[M0] + n * (t - sat->orbits[ToeT]);
+
+	// step3
+	double E = solveKepler(M, sat->orbits[Ec]);
+
+	// step4
+	double sinE = std::sin(E), cosE = std::cos(E);
+	double f = std::atan2(std::sqrt(1 - sat->orbits[Ec] * sat->orbits[Ec]) * sinE, cosE - sat->orbits[Ec]);
+
+	// step5
+	double phi = f + sat->orbits[omega];
+
+	// step6
+	double delta_u = sat->orbits[Cuc] * std::cos(2 * phi) + sat->orbits[Cus] * std::sin(2 * phi);
+	double delta_r = sat->orbits[Crs] * std::cos(2 * phi) + sat->orbits[Crc] * std::sin(2 * phi);
+	double delta_i = sat->orbits[Cic] * std::cos(2 * phi) + sat->orbits[Cis] * std::sin(2 * phi);
+
+	// step7
+	double u = phi + delta_u;
+	double r = sat->orbits[sqrtA] * sat->orbits[sqrtA] * (1 - sat->orbits[Ec] * cosE) + delta_r;
+	double i = sat->orbits[i0] + delta_i + sat->orbits[IDOT] * (t - sat->orbits[ToeT]);
+
+	// step8
+	double x = r * std::cos(u), y = r * std::sin(u);
+
+	// step9
+	double L = sat->orbits[Omega] + (sat->orbits[OmegaDot] - omega_e) * t - sat->orbits[OmegaDot] * sat->orbits[ToeT];
+
+	// step10
+	result[0] = x * std::cos(L) - y * std::sin(L) * std::cos(i);
+	result[1] = x * std::sin(L) + y * std::cos(L) * std::cos(i);
+	result[2] = y * std::sin(i);
+
+	return;
+}
+
+void solution::sat_position(int prn, Epoch* epoch, double* result) {
+	ObservationManager& obsManager = ObservationManager::instance();
+	navigationManager& navManager = navigationManager::instance();
 	int hour = epoch->h, min = epoch->min;
 	double sec = epoch->sec;
 	// 选择最合适的观测值
-	satelliteData* temp = nullptr, *temp2 = nullptr;
+	satelliteData* temp = nullptr, * temp2 = nullptr;
 	size_t j = 0;
 	for (; j < navManager.satelilteList.size(); ++j) {
 		temp = navManager.satelilteList[j];
@@ -59,62 +105,13 @@ void solution::get_position(int prn, Epoch* epoch, double dSec, double* result) 
 		temp = temp2;
 	}
 
-	// step 1
-	double n = sqrt(GM) / (temp->orbits[sqrtA] * temp->orbits[sqrtA] * temp->orbits[sqrtA]) + temp->orbits[Dn];
-
-	// step2
-	timeManager.setOrigin(UTM); timeManager.setTarget(GPS);
-	timeManager.utm_year = epoch->y + 2000; timeManager.utm_mon = epoch->m;
-	timeManager.utm_day = epoch->d; timeManager.utm_hour = epoch->h;
-	timeManager.utm_min = epoch->min; timeManager.utm_sec = epoch->sec;
-	timeManager.run();
-	double t = timeManager.gps_second - dSec;
-	//double t = temp->orbits[ToeT];
-	double M = temp->orbits[M0] + n * (t - temp->orbits[ToeT]);
-
-	// step3
-	double E = solveKepler(M, temp->orbits[Ec]);
-
-	// step4
-	double sinE = std::sin(E), cosE = std::cos(E);
-	double f = std::atan2(std::sqrt(1 - temp->orbits[Ec] * temp->orbits[Ec]) * sinE, cosE - temp->orbits[Ec]);
-
-	// step5
-	double phi = f + temp->orbits[omega];
-
-	// step6
-	double delta_u = temp->orbits[Cuc] * std::cos(2 * phi) + temp->orbits[Cus] * std::sin(2 * phi);
-	double delta_r = temp->orbits[Crs] * std::cos(2 * phi) + temp->orbits[Crc] * std::sin(2 * phi);
-	double delta_i = temp->orbits[Cic] * std::cos(2 * phi) + temp->orbits[Cis] * std::sin(2 * phi);
-
-	// step7
-	double u = phi + delta_u;
-	double r = temp->orbits[sqrtA] * temp->orbits[sqrtA] * (1 - temp->orbits[Ec] * cosE) + delta_r;
-	double i = temp->orbits[i0] + delta_i + temp->orbits[IDOT] * (t - temp->orbits[ToeT]);
-
-	// step8
-	double x = r * std::cos(u), y = r * std::sin(u);
-
-	// step9
-	double L = temp->orbits[Omega] + (temp->orbits[OmegaDot] - omega_e) * t - temp->orbits[OmegaDot] * temp->orbits[ToeT];
-
-	// step10
-	result[0] = x * std::cos(L) - y * std::sin(L) * std::cos(i);
-	result[1] = x * std::sin(L) + y * std::cos(L) * std::cos(i);
-	result[2] = y * std::sin(i);
-
-	return;
-}
-
-void solution::sat_position(int prn, Epoch* epoch, double* result) {
-	ObservationManager& obsManager = ObservationManager::instance();
 	double dSec = 0;
-	get_position(prn, epoch, dSec, result);
+	get_position(temp, epoch, dSec, result);
 	double distance = std::sqrt(std::pow(obsManager.approch_x - result[0], 2) +
 		std::pow(obsManager.approch_y - result[1], 2) +
 		std::pow(obsManager.approch_z - result[2], 2));
 	dSec += distance / c;
-	get_position(prn, epoch, dSec, result);
+	get_position(temp, epoch, dSec, result);
 }
 
 double solution::klobuchar(double x, double y, double z, double UT) {
@@ -159,15 +156,15 @@ double solution::saastamoinen(double el, double P, double T, double e) {
 	double b, l, h;
 	spaceTransformer::xyz2blh(obsManager.approch_x, obsManager.approch_y, obsManager.approch_z, b, l, h);
 
-	// 标准大气压随高程修正
+
 	if (P == 1013.25) {
 		P = 1013.25 * pow(1 - 0.0000226 * h, 5.225);
 	}
-	// 温度随高程修正
+
 	if (T == 291.15) {
 		T = 291.15 - 0.0065 * h;
 	}
-	// 水汽压可用经验值
+
 	if (e == 20.0) {
 		e = 6.108 * exp((17.15 * (T - 273.15)) / (234.7 + (T - 273.15)));
 	}
@@ -284,12 +281,12 @@ void solution::cal_all_position() {
 			if (obs->satName[0] != 'G') continue;
 			int prn = std::atoi(obs->satName + 1);
 			double dSec = 0;
-			get_position(prn, temp, dSec, positions[count].coord);
+			//get_position(prn, temp, dSec, positions[count].coord);
 			double distance = std::sqrt(std::pow(obsManager.approch_x - positions[count].coord[0], 2) +
 				std::pow(obsManager.approch_y - positions[count].coord[1], 2) +
 				std::pow(obsManager.approch_z - positions[count].coord[2], 2));
 			dSec += distance / c;
-			get_position(prn, temp, dSec, positions[count].coord);
+			//get_position(prn, temp, dSec, positions[count].coord);
 			count++;
 		}
 	}

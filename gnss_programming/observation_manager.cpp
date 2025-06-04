@@ -5,8 +5,6 @@
 #include <cstring>
 
 #include "observation_manager.h"
-#include "navigation_manager.h"
-
 
 bool ObservationManager::readFile(const char* file_path) {
 	std::ifstream obsFile(file_path);

@@ -1,48 +1,24 @@
 #pragma once
 #include <string>
 
-enum TimeType { DOY, GPS, JD, UTM };
+struct UTC {
+	int y, m, d, h, minu;
+	double sec;
 
-class timeTransformer {
-public:
-	static timeTransformer& instance() {
-		static timeTransformer instance;
-		return instance;
+	UTC(int year, int month, int day, int hour, int minute, double second)
+		: y(year), m(month), d(day), h(hour), minu(minute), sec(second) {
 	}
-
-	void setOrigin(TimeType o) {
-		origin = o;
-	}
-	void setTarget(TimeType t) {
-		target = t;
-	}
-
-	void run();
-
-	std::string getTarget();
-	void parserInput(std::string);
-
-	double jd = 0;
-	int doy_year = 0, doy_day = 0, gps_week = 0, gps_second = 0;
-	int utm_year = 0, utm_mon = 0, utm_day = 0, utm_hour = 0, utm_min = 0;
-	double utm_sec = 0;
-
-
-private:
-	timeTransformer() = default;
-	// Ω˚÷πøΩ±¥∫Õ∏≥÷µ
-	timeTransformer(const timeTransformer&) = delete;
-	timeTransformer& operator=(const timeTransformer&) = delete;
-
-	TimeType origin = UTM, target = UTM;
-
-	double UTM2JD();
-	double GPS2JD();
-	double DOY2JD();
-	void JD2UTM();
-	void JD2GPS();
-	void JD2DOY();
 };
+
+struct GPS {
+	int week;
+	double sec;
+	GPS() : week(0), sec(0) {}
+	GPS(int week, double sec) : week(week), sec(sec) {}
+};
+
+void utc2gps(UTC* utcTime, GPS* gpsTime);
+void gps2utc(GPS* gpsTime, UTC* utcTime);
 
 struct LeapSecond {
 	int year, month, day;
@@ -50,15 +26,6 @@ struct LeapSecond {
 };
 
 static const LeapSecond leap_seconds[] = {
-	{ 1972, 6, 30, 10 },
-	{ 1972, 12, 31, 11 },
-	{ 1973, 12, 31, 12 },
-	{ 1974, 12, 31, 13 },
-	{ 1975, 12, 31, 14 },
-	{ 1976, 12, 31, 15 },
-	{ 1977, 12, 31, 16 },
-	{ 1978, 12, 31, 17 },
-	{ 1979, 12, 31, 18 },
 	{ 1981, 6, 30, 19 },
 	{ 1982, 6, 30, 20 },
 	{ 1983, 6, 30, 21 },
@@ -82,7 +49,6 @@ static const LeapSecond leap_seconds[] = {
 static const int leap_seconds_count = sizeof(leap_seconds) / sizeof(leap_seconds[0]);
 
 int getLeapSeconds(int year, int month, int day);
-
 
 static constexpr double a = 6378137.0;                // ≥§∞Î÷·
 static constexpr double f = 1.0 / 298.257223563;      // ±‚¬ 

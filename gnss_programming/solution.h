@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "observation_manager.h"
+#include "navigation_manager.h"
 
 struct satPosition {
 	double x, y, z;
@@ -24,7 +25,7 @@ private:
 	solution& operator=(const solution&) = delete;
 	std::vector<satPosition> sat_positions;
 
-	void get_position(int prn, Epoch* epoch, double dSec, double* result);
+	void get_position(satelliteData* bestSat, Epoch* epoch, double dSec, double* result);
 	void sat_position(int prn, Epoch* epoch, double* result);
 	double klobuchar(double x, double y, double z, double UT);
 	double saastamoinen(double el, double P = 1013.25, double T = 291.15, double e = 20.0);
